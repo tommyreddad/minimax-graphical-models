@@ -1,0 +1,1510 @@
+\documentclass[letterpaper]{amsart}
+%\documentclass[numbib]{imaiai}
+
+%\setcitestyle{number}
+
+\usepackage{comment}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{url}
+
+\usepackage{enumitem}
+\usepackage{mathtools}
+
+%%%
+% Nice typesetting for KL and Jeffreys divergence
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\infdiv}{\mathrm{KL}\infdivx}
+\newcommand{\sinfdiv}{\mathrm{J}\infdivx}
+%%%
+
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\newcommand{\bZ}{\mathbb{Z}}
+\newcommand{\bS}{\mathbb{S}}
+\newcommand{\sP}{\mathcal{P}}
+\newcommand{\sW}{\mathcal{W}}
+\newcommand{\sG}{\mathcal{G}}
+\newcommand{\sS}{\mathcal{S}}
+\newcommand{\sI}{\mathcal{I}}
+\newcommand{\sX}{\mathcal{X}}
+\newcommand{\sF}{\mathcal{F}}
+\newcommand{\sR}{\mathcal{R}}
+\newcommand{\sA}{\mathcal{A}}
+\newcommand{\sM}{\mathcal{M}}
+\newcommand{\sN}{\mathcal{N}}
+\newcommand{\sB}{\mathcal{B}}
+\newcommand{\ceil}[1]{{\lceil #1 \rceil}}
+\newcommand{\Ceil}[1]{{\left\lceil #1 \right\rceil}}
+\newcommand{\floor}[1]{{\lfloor #1 \rfloor}}
+\newcommand{\Floor}[1]{{\left\lfloor #1 \right\rfloor}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\DeclareMathOperator{\E}{\mathbf{E}}
+\newcommand*{\from}{\colon}
+\newcommand{\eps}{\varepsilon}
+
+\let\Pr\relax
+\DeclareMathOperator{\Pr}{\mathbf{P}}
+\newcommand{\V}{\mathbf{V}}
+\DeclareMathOperator{\TV}{TV}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\VC}{VC}
+
+%%%
+% A wide tilde for use with \iid
+\newcommand{\widesim}[2][1.5]{
+  \mathrel{\overset{#2}{\scalebox{#1}[1]{$\sim$}}}
+}
+\newcommand{\iid}{\mathbin{\widesim[2]{i.i.d.}}}
+%%%
+
+%%%
+% Better parentheses
+\let\originalleft\left
+\let\originalright\right
+\def\left#1{\mathopen{}\originalleft#1}
+\def\right#1{\originalright#1\mathclose{}}
+%%%
+
+%%%
+% Upright differential operator
+\newcommand{\dif}{\mathop{}\!\mathrm{d}}
+
+%%%
+% Proper spacing and punctuation following abbreviations
+\usepackage{xspace}
+\newcommand*{\ie}{\emph{i.e.,}\@\xspace}
+\newcommand*{\eg}{\emph{e.g.,}\@\xspace}
+\makeatletter
+\newcommand*{\etal}{
+	\@ifnextchar{.}
+    {\emph{et al}}
+    {\emph{et al.}\@\xspace}
+}
+\makeatother
+
+\newcommand{\seclabel}[1]{\label{sec:#1}}
+\newcommand{\Secref}[1]{Section~\ref{sec:#1}}
+\newcommand{\secref}[1]{\mbox{Section~\ref{sec:#1}}}
+
+\newcommand{\eqlabel}[1]{\label{eq:#1}}
+\renewcommand{\eqref}[1]{(\ref{eq:#1})}
+\newcommand{\myeqref}[1]{(\ref{eq:#1})}
+\newcommand{\Eqref}[1]{Equation~(\ref{eq:#1})}
+
+\newtheorem{thm}{Theorem}{\bfseries}{\itshape}
+\newcommand{\thmlabel}[1]{\label{thm:#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{thm:#1}}
+\numberwithin{thm}{section}
+
+\newtheorem{lem}[thm]{Lemma}{\bfseries}{\itshape}
+\newcommand{\lemlabel}[1]{\label{lem:#1}}
+\newcommand{\lemref}[1]{Lemma~\ref{lem:#1}}
+
+\newtheorem{cor}[thm]{Corollary}{\bfseries}{\itshape}
+\newcommand{\corlabel}[1]{\label{cor:#1}}
+\newcommand{\corref}[1]{Corollary~\ref{cor:#1}}
+
+\newtheorem{prop}[thm]{Proposition}{\bfseries}{\itshape}
+\newcommand{\proplabel}[1]{\label{prop:#1}}
+\newcommand{\propref}[1]{Proposition~\ref{prop:#1}}
+
+\theoremstyle{definition}
+
+\newtheorem{defn}[thm]{Definition}
+\newcommand{\defnlabel}[1]{\label{defn:#1}}
+\newcommand{\defnref}[1]{Definition~\ref{defn:#1}}
+
+\newtheorem{rem}[thm]{Remark}
+\newcommand{\remlabel}[1]{\label{rem:#1}}
+\newcommand{\remref}[1]{Remark~\ref{rem:#1}}
+
+\theoremstyle{plain}
+
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{linkblue}{named}{Blue}
+\hypersetup{colorlinks=true, linkcolor=linkblue,  anchorcolor=linkblue,
+citecolor=linkblue, filecolor=linkblue, menucolor=linkblue,
+urlcolor=linkblue} 
+
+\renewcommand{\tilde}[1]{\widetilde{#1}}
+\newcommand{\transpose}{^{\mathsf{T}}}
+
+\AtBeginDocument{%
+  \def\MR#1{}
+}
+
+\AtBeginDocument{
+  \label{CorrectFirstPageLabel}
+  \def\fpage{\pageref{CorrectFirstPageLabel}}
+}
+
+\begin{document}
+
+\title[Minimax Rates of Normal \& Ising MRF]{The minimax learning rate of normal \\ and Ising undirected graphical models}
+\author{Luc Devroye}
+\author{Abbas Mehrabian}
+\author{Tommy Reddad}
+\email{lucdevroye@gmail.com \\
+  abbas.mehrabian@gmail.com \\
+  tommy.reddad@gmail.com}
+\address{School of Computer Science, McGill University, 3480 University Street, Montr\'{e}al, Qu\'{e}bec, Canada, H3A 2K6}
+\thanks{Luc Devroye is supported by NSERC Grant A3456. Abbas Mehrabian is supported by a CRM-ISM postdoctoral fellowship and an IVADO-Apogee-CFREF postdoctoral fellowship. Tommy Reddad is supported by an NSERC PGS D scholarship 396164433.}
+\date{\today}
+
+%\shorttitle{Minimax Rates of Normal \& Ising MRF} %%%for recto running head
+%\shortauthorlist{L. Devroye, A. Mehrabian, and T. Reddad} %%% for verso running head
+%\author{{%%%% First author details
+%\sc Luc Devroye, Abbas Mehrabian, and Tommy Reddad}$^*$,\\[2pt]
+%School of Computer Science, McGill University, Canada \\
+%{lucdevroye@gmail.com \quad abbas.mehrabian@gmail.com, \\
+%  $^*${\email{Corresponding author. Email: tommy.reddad@gmail.com}}}
+%}
+
+
+\subjclass[2010]{Primary: 62G07; secondary: 82B20}
+\keywords{Density estimation, distribution learning, graphical model, Markov random field, Ising model, multivariate normal, Fano's lemma.}
+
+\maketitle
+
+\begin{abstract}
+  {Let $G$ be an undirected graph with $m$ edges and $d$ vertices. We
+  show that $d$-dimensional Ising models on $G$ can be learned from
+  $n$ i.i.d.\ samples within expected total variation distance some
+  constant factor of $\min\{1, \sqrt{(m + d)/n}\}$, and that this rate
+  is optimal. We show that the same rate holds for the class of
+  $d$-dimensional multivariate normal undirected graphical models with
+  respect to $G$. We also identify the optimal rate of
+  $\min\{1, \sqrt{m/n}\}$ for Ising models with no external magnetic
+  field.}
+  {density estimation, distribution learning, graphical model, Markov
+  random field, Ising model, multivariate normal, Fano's lemma.}
+  \\
+  2000 Math Subject Classification: 62G07, 82B20.
+\end{abstract}
+
+\section{Introduction}
+The Ising model is a popular mathematical model inspired by
+ferromagnetism in statistical mechanics.  The model consists of
+discrete $\{-1,1\}$ random variables representing magnetic dipole
+moments of atomic spins.  The spins are arranged in a
+graph---originally a lattice, but other graphs have also been
+considered---allowing each spin to interact with its graph
+neighbors. Sometimes, the spins are also subject to an external
+magnetic field.
+
+The Ising model is one of many possible mean field models for spin
+glasses. Its probabilistic properties have caught the attention of
+many researchers---see, \eg the monographs of
+Talagrand~\cite{talagrand-2003,talagrand-2010,talagrand-2011}. The
+analysis of social networks has brought computer scientists into the
+fray, as precisely the same model appears there in the context of
+community detection~\cite{berthet}.
+
+In this work we view an Ising model as a probability distribution on
+$\{-1,1\}^d$, and consider the following statistical inference and
+learning problem, known as {\em density estimation} or {\em
+  distribution learning}: given i.i.d.\ samples from an unknown Ising
+model $I$ on a known graph $G$, can we create a probability
+distribution on $\{-1,1\}^d$ that is close to $I$ in total variation
+distance?  If we have $n$ samples, then how small can we make the
+expected value of this distance? We prove that if $G$ has $m$ edges,
+the answer to this question is bounded from above and below by
+constant factors of $\sqrt{(m + d)/n}$. In the case when there is no
+external magnetic field, the answer is instead $\sqrt{m/n}$.
+
+Our techniques carry over to the continuous case and allow us prove a
+similar minimax rate for learning the class of $d$-dimensional normal
+undirected graphical models on $G$. It is surprising that the minimax
+rate for this class was not known, even when $G$ is the complete
+graph, corresponding to the class of all $d$-dimensional normal
+distributions.
+
+
+\subsection{Main results}
+
+We start by stating our result for normal distributions. For precise
+definitions of all terms mentioned below, see \secref{prelim}.
+
+\begin{thm}[Main result for learning normals]\thmlabel{normal-main-bound}
+  Let $G$ be a given undirected graph with vertex set
+  $\{1, \dots, d\}$ and $m$ edges. Let $\sF_G$ be the class of
+  $d$-dimensional multivariate normal undirected graphical models with
+  respect to $G$. Then, the minimax rate for learning $\sF_{G}$ in
+  total variation distance is bounded from above and below by constant
+  factors of $\min\{1, \sqrt{(m + d)/n}\}$.
+\end{thm}
+
+The upper bound follows from standard techniques (see
+\secref{normal-upper}) and a lower bound of $\min\{1, \sqrt{d/n}\}$ is
+known (see Section~\ref{sec:related}); our main technical contribution
+is to show a lower bound of $\min\{1, \sqrt{m/n}\}$, from which
+\thmref{normal-main-bound} follows.  This theorem immediately implies
+a tight result on the minimax rate for learning the class of all
+$d$-dimensional normals, if we take the graph $G$ to be complete. In
+this specific case, the upper bound is already known, so our
+contribution is the matching lower bound.
+\begin{cor}
+  The minimax rate for learning the class of all $d$-dimensional
+  multivariate normal distributions in total variation distance is
+  bounded from above and below by constant factors of
+  $\min\{1, d/\sqrt{n}\}$.
+\end{cor}
+In fact, this result can be extended using the techniques of
+\cite{2017-abbas} in order to yield the optimal minimax rate of
+$\min\{1, d\sqrt{k/n}\}$ for learning mixtures of $k$ independent
+$d$-dimensional multivariate normals, which was previously known only
+up to logarithmic factors.
+
+We remark that for the class of mean-zero normal undirected graphical
+models, we prove a lower bound of $\min\{1, \sqrt{m/n}\}$, while the
+best known upper bound is $\min\{1, \sqrt{(m + d)/n}\}$. In practice,
+the underlying graph is typically connected, which means that
+$m \ge d - 1$, so these bounds match.
+
+We prove similar rates as in \thmref{normal-main-bound} for the class
+of Ising models, which resemble discrete versions of multivariate
+normal distributions. An Ising model in dimension $d$ is supported on
+$\{-1, 1\}^d$ and comes with an undirected graph $G = (V, E)$ with
+vertex set $V = \{1, \dots, d\}$, edge set
+$E \subseteq \{\{i, j\} \colon i \neq j \in V\}$, interactions
+$w_{ij} \in \R$ for each $\{i, j\} \in E$, and external magnetic field
+$h_i \in \R$ for $1 \le i \le d$ such that $x \in \{-1, 1\}^d$ appears
+with probability proportional to
+\[
+   \exp\left\{\sum_{\{i, j\} \in E} w_{ij} x_i x_j + \sum_{i = 1}^d h_i x_i\right\} .
+\]
+Note that our definition has no temperature parameter; we have
+absorbed it into the weights.
+
+\begin{thm}[Main result for learning Ising models]\thmlabel{ising-main-bound}
+  Let $G$ be a given undirected graph with vertex set
+  $\{1, \dots, d\}$ and $m$ edges. Let $\sI_G$ be the class of
+  $d$-dimensional Ising models with underlying graph $G$.
+  \begin{enumerate}[label=(\roman*)]
+  \item \label{ising-1} The minimax rate for learning $\sI_{G}$ in
+    total variation distance is bounded from above and below by
+    constant factors of $\min\{1, \sqrt{(m + d)/n}\}$.
+  \item \label{ising-2} Let $\sI'_{G}$ be the subclass $\sI_G$ of
+    Ising models with no external magnetic field. The minimax rate for
+    learning $\sI'_{G}$ in total variation distance is bounded from
+    above and below by constant factors of $\min\{1, \sqrt{m/n}\}$.
+  \end{enumerate}
+\end{thm}
+
+In all of the above cases, the full structure and labeling of the
+underlying graph $G$ is known in advance. We next consider the case in
+which it is only known that the underlying graph has $d$ vertices and
+$m$ edges.
+\begin{thm}\thmlabel{unknowngraph}
+  Let $\sF_{d,m}$ and $\sI_{d,m}$ be the class of all normal and Ising
+  undirected graphical models with respect to some unknown graph with
+  $d$ vertices and $m$ edges. The minimax learning rates for
+  $\sF_{d, m}$ and $\sI_{d, m}$ are both bounded from above by a
+  constant factor of $\min\{1, \sqrt{(m + d) \log d/n}\}$, and bounded
+  from below by a constant factor of $\min\{1, \sqrt{(m + d)/n}\}$.
+\end{thm}
+The lower bound in this theorem follows immediately from our lower
+bounds for the case in which the graph is known.
+
+In the next section we review related work.  In \secref{prelim} we
+discuss preliminaries.  \thmref{normal-main-bound},
+\thmref{ising-main-bound} and \thmref{unknowngraph} are proved in
+\secref{normal}, \secref{ising}, and Section~\ref{sec:unknowngraph},
+respectively.  We conclude with some open problems in
+\secref{conclusion}.
+ 
+\subsection{Related work}\label{sec:related}
+
+Density estimation is a central problem in statistics and has a long
+history~\cite{devroye-course,devroye-gyorfi,ibragimov,tsybakov}.  It
+has also been studied in the learning theory community under the name
+\emph{distribution learning}, starting from \cite{Kearns}, whose focus
+is on the computational complexity of the learning problem. Recently,
+it has gained a lot of attention in the machine learning community, as
+one of the important tasks in unsupervised learning is to understand
+the distribution of the data, which is known to significantly improve
+the efficiency of learning algorithms (\eg
+\cite[page~100]{deeplearningbook}).  See~\cite{Diakonikolas2016} for a
+recent survey from this perspective.
+
+An upper bound on the order of $d/\sqrt{n}$ for estimating
+$d$-dimensional normals can be obtained via empirical mean and
+covariance estimation (\eg \cite[Theorem~B.1]{2017-abbas}) or via
+Yatracos' techniques based on VC-dimension (\eg
+\cite[Theorem~13]{abbas-mixtures}).  Regarding lower bounds, Acharya,
+Jafarpour, Orlitsky, and Suresh~\cite[Theorem~2]{acharya-lower-bound}
+proved a lower bound on the order of $\sqrt{d/n}$ for spherical
+normals (\ie normals with identity covariance matrix), which implies
+the same lower bound for general normals. The lower bound for general
+normals was recently improved to a constant factor of
+$\frac{d}{\sqrt{n} \log n}$ by Asthiani, Ben-David, Harvey, Liaw,
+Mehrabian, and Plan~\cite{2017-abbas}. In comparison, our result
+shaves off the logarithmic factor. Moreover, their result is
+nonconstructive and relies on the probabilistic method, while our
+argument is fully deterministic.
+
+For the Ising model, the main focus in the literature has been on
+learning the structure of the underlying graph rather than learning
+the distribution itself, \ie how many samples are needed to
+reconstruct the underlying graph with high probability?
+See~\cite{Santhanam-lower,Shanmugam-lower} for some lower bounds
+and~\cite{Hamilton-upper,Klivans-upper} for some upper bounds. Klivans
+and Meka~\cite{Klivans-upper} also give an efficient algorithm for
+learning the all of the parameters of an Ising model given a natural
+parametric constraint. Otherwise, the Ising model itself has been
+studied by physicists in other settings for nearly a century. See the
+books of Talagrand for a comprehensive look at the mathematics of the
+Ising model~\cite{talagrand-2003, talagrand-2010, talagrand-2011}.
+
+Daskalakis, Dikkala, and Kamath~\cite{costis-2018} were the first to
+study Ising models from a statistical point of view. However, their
+goal is to test whether an Ising model has certain properties, rather
+than estimating the model, which is our goal. Moreover, their focus is
+on designing efficient testing algorithms. They prove polynomial
+sample complexities and running times for testing various properties
+of the model.
+
+An alternative goal would be to estimate the parameters of the
+underlying model (\eg \cite{KMV}) rather than coming up with a model
+that is statistically close, which is our focus.  We remark that these
+two goals are quantitatively different, although similar techniques
+may be used for both. In general, estimating the parameters of a model
+to within some accuracy does not necessarily result in a distribution
+that is close to the original distribution in a statistical sense. For
+instance, define
+\[
+  \Sigma = \begin{pmatrix} 1 & -0.99 \\ -0.99 & 1 \end{pmatrix}
+  \qquad\text{and}\qquad
+  \tilde{\Sigma} = \begin{pmatrix} 1 & -1 \\ -1 & 1 \end{pmatrix},
+\]
+and observe that $\Sigma$ and $\tilde{\Sigma}$ are entrywise very
+close. However, $\Sigma$ is non-singular and $\tilde{\Sigma}$ is
+singular, and thus two mean-zero normal distributions with covariance
+matrices $\Sigma$ and $\tilde{\Sigma}$ are at total variation distance
+$1$ from one another. Conversely, if two distributions are close in
+total variation distance, their parameters are not necessarily close
+to within the same accuracy.
+
+\section{Preliminaries}\seclabel{prelim}
+The goal of density estimation is to design an estimator $\hat{f}$ for
+an unknown function $f$ taken from a known class of functions
+$\sF$. In the continuous case, $\sF$ is a class of probability density
+functions with sample space $\sX = \R^d$ for some $d \ge 1$; in the
+discrete case, $\sF$ is a class of probability mass functions with a
+countable sample space $\sX$. In either case, in order to create the
+estimator $\hat{f}$, we have access to samples
+$X_1, \dots, X_n \iid f$. Our measure of closeness is the \emph{total
+  variation (TV) distance}: For functions $f, g : \sX \to \R$, their
+TV-distance is defined as
+\begin{align*}
+  \TV(f, g) =  \norm{f - g}_1 /2,
+\end{align*}
+where for any function $f$, the $L^1$-norm of $f$  is defined as
+\begin{align*}
+  \norm{f}_1 &= \int_{\sX} |f(x)| \dif x &&\textrm{in the continuous case, and} \\
+  \norm{f}_1 &= \sum_{x \in \sX} |f(x)| &&\textrm{in the discrete case. }
+\end{align*}
+Further along, we will also need the \emph{Kullback-Leibler (KL)
+  divergence} or \emph{relative entropy}~\cite{kullback-book}, which
+is another measure of closeness of distributions defined by
+\begin{align*}
+  \infdiv{f}{g} &= \int_{\sX} f(x) \log\left( \frac{f(x)}{g(x)} \right) \dif x &&\textrm{in the continuous case, and} \\
+  \infdiv{f}{g} &= \sum_{x \in \sX} f(x) \log \left( \frac{f(x)}{g(x)} \right) &&\textrm{in the discrete case.}
+\end{align*}
+Formally, in the continuous case, we can write
+$f = \frac{\dif F}{\dif \mu}$ for a probability measure $F$ and $\mu$
+the Lebesgue measure on $\R^d$, and in the discrete case
+$f = \frac{\dif F}{\dif \mu}$ for a probability measure $F$ and $\mu$
+the counting measure on countable $\sX$. In view of this unified
+framework, we say that $\sF$ is a \emph{class of densities} and that
+$\hat{f}$ is a \emph{density estimate}, in both the continuous and the
+discrete settings.  The total variation distance has a natural
+probabilistic interpretation as
+$\TV(f, g) = \sup_{A\subseteq \sX} |F(A)-G(A)|$, where $F$ and $G$ are
+probability measures corresponding to $f$ and $g$, respectively. So,
+the TV-distance lies in $[0,1]$.  Also, it is well known that the
+KL-divergence is nonnegative, and is zero if and only if the two
+densities are equal almost everywhere.  However, it is not symmetric
+in general, and can become $+\infty$.
+
+For density estimation there are various possible measures of distance
+between distributions.  Here we focus on the TV-distance since it has
+several appealing properties, such as being a metric and having a
+natural probabilistic interpretation.  For a detailed discussion on
+why TV is a natural choice, see \cite[Chapter~5]{devroye-lugosi}.  If
+$\hat{f}$ is a density estimate, we define the \emph{risk} of the
+estimator $\hat{f}$ with respect to the class $\sF$ as
+\[
+  \sR_n(\hat{f}, \sF) = \sup_{f \in \sF} \E\{ \TV(\hat{f}, f) \} ,
+\]
+where the expectation is over the $n$ i.i.d.\ samples from $f$, and
+possible randomization of the estimator.  The \emph{minimax risk} or
+\emph{minimax rate} for $\sF$ is the smallest risk over all possible
+estimators,
+\[
+  \sR_n(\sF) = \inf_{\hat{f} \colon \sX^n \to \R^{\sX}} \sR_n(\hat{f}, \sF) .
+\]
+
+
+For a class of functions $\sF$ defined on the same domain $\sX$, its
+\emph{Yatracos class} $\sA$ is the class of sets defined by
+\[
+  \sA = \Big\{\{x \in \sX \colon f(x) > g(x)\} \colon f \neq g \in \sF\Big\} .
+\]
+The following powerful result relates the minimax risk of a class of
+densities to an old well-studied combinatorial quantity called the
+Vapnik-Chervonenkis (VC) dimension~\cite{vapnik-cherv}.  Indeed, let
+$\sA \subseteq 2^{\sX}$ be a family of subsets of $\sX$.  The
+\emph{VC-dimension} of $\sA$, denoted by $\VC(\sA)$, is the size of
+the largest set $X \subseteq \sX$ such that for each $Y\subseteq X$
+there exists $B \in \sA$ such that $X \cap B = Y$.  See, \eg
+\cite[Chapter~4]{devroye-lugosi} for examples and applications.
+\begin{thm}[\protect{\cite[Section~8.1]{devroye-lugosi}}]\thmlabel{risk-vc}
+  There is a univeral constant $c > 0$ such that for any class of
+  densities $\sF$ with Yatracos class $\sA$,
+  \[
+    \sR_n(\sF) \le c \sqrt{\VC(\sA)/n} .
+  \]
+\end{thm}
+
+On the other hand, there are several methods for obtaining lower
+bounds on minimax risk; we emphasize, in particular, the methods of
+Assouad~\cite{assouad}, Le Cam~\cite{lecam-1, lecam-2}, and
+Fano~\cite{has-fano}. Each of these involve picking a finite subclass
+$\sG \subseteq \sF$, and using the fact that
+$\sR_n(\sG) \le \sR_n(\sF)$, developing a lower bound on the minimax
+risk of $\sG$. See \cite{devroye-course, devroye-lugosi, yu-survey}
+for more details. We will use the following result, known as
+(generalized) Fano's lemma, originally due to
+Khas'minskii~\cite{has-fano}.
+
+\begin{lem}[Fano's Lemma \protect{\cite[Lemma
+3]{yu-survey}}]\lemlabel{fano-lower}
+  Let $\sF$ be a finite  class of densities such that
+  \begin{align*}
+    \inf_{f \neq g \in \sF} \norm{f - g}_1 \ge \alpha , \qquad \sup_{f \neq g \in \sF} \infdiv{f}{g} \le \beta .
+  \end{align*}
+  Then,
+  \[
+    \sR_n(\sF) \ge \frac{\alpha}{4} \left(1 - \frac{n \beta + \log 2}{\log |\sF|} \right) .
+  \]
+\end{lem}
+In light of this lemma, to prove a minimax risk lower bound on a class
+of densities $\sF$, we shall carefully pick a finite subclass of
+densities in $\sF$, such that any two densities in this subclass are
+far apart in $L^1$-distance but close in KL-divergence.
+
+Throughout this paper, we will be estimating densities from classes
+with a given graphical dependence structure, known as undirected
+graphical models~\cite{graphical-models}. The underlying graph will
+always be undirected and without parallel edges or self-loops, so we
+will omit these qualifiers henceforth. Indeed, let $G = (V, E)$ be a
+given graph with vertex set $V = \{1, \dots, d\}$ and edge set $E$. A
+set of random variables $\{X_1, \dots, X_d\}$ with everywhere strictly
+positive densities forms a \emph{graphical model} or \emph{Markov
+  random field (MRF)} with respect to $G$ if for every
+$\{i, j\} \not\in E$, the variables $X_i$ and $X_j$ are conditionally
+independent given $\{X_k \colon k \neq i, j\}$.
+
+Often, the problem of density estimation is framed slightly
+differently than we have presented it: given $\eps \in (0, 1)$, we can
+be interested in finding the smallest number of i.i.d.\ samples
+$m_\sF(\eps)$ for which there exists a density estimate $\hat{f}$
+based on these samples satisfying
+$\sup_{f \in \sF} \E\{\TV(\hat{f}, f)\} \le \eps$. Or, given
+$\delta \in (0, 1)$, we might want to find the minimum number of
+samples $m_\sF(\eps, \delta)$ for which there is a density estimate
+$\hat{f}$ satisfying $\sup_{f \in \sF} \TV(\hat{f}, f) \le \eps$ with
+probability at least $1 - \delta$. The quantities $m_\sF(\eps)$ and
+$m_\sF(\eps, \delta)$ are known as \emph{sample complexities} of the
+class $\sF$. Note that $m_\sF(\eps)$ and $\sR_n(\sF)$ are related
+through the equation
+\[
+  m_\sF(\sR_n(\sF)) = n ,
+\]
+so that determining one also determines the other. Moreover, $\delta$
+is often fixed to be some small constant like $1/3$ when studying
+$m_\sF(\eps, \delta)$, since it can be shown that all other values of
+$m_\sF$ for smaller $\delta$ are within a $\log(1/\delta)$ factor of
+$m_\sF(\eps, 1/3)$. Then, there are versions of \thmref{risk-vc} and
+\lemref{fano-lower} for $m_\sF(\eps, 1/3)$, which introduce some
+extraneous $\log(1/\eps)$ factors. In order to avoid such extraneous
+logarithmic factors, we focus on $\sR_n(\sF)$---equivalently,
+$m_\sF(\eps)$---rather than $m_\sF(\eps, 1/3)$ or
+$m_\sF(\eps, \delta)$.
+
+We now recall some basic matrix analysis formulae which will be used
+throughout (see Horn and Johnson~\cite{matrix_analysis} for the
+proofs).  For a matrix $A = (A_{ij}) \in \R^{d \times d}$, the
+\emph{spectral norm} of $A$ is defined as
+$\norm{A} = \sup_{x \in \bS^{d - 1}} \norm{A x}_2$, where
+$\bS^{d - 1} = \{ x \in \R^d \colon \|x\|_2 = 1\}$ is the unit
+$(d - 1)$-sphere. Recall also the \emph{Frobenius norm} of $A$,
+sometimes also called the \emph{Hilbert-Schmidt norm},
+$\norm{A}_F = \sqrt{ \sum_{i,j = 1}^d A_{i j}^2} =
+\sqrt{\tr(A\transpose A)}$. When $A$ has all real eigenvalues, we
+write $\lambda_i(A)$ for the $i$-th largest eigenvalue of $A$. In
+general, we write $\sigma_i(A) = \sqrt{\lambda_i(A\transpose A)}$ for
+the $i$-th largest singular value of $A$. Then,
+$\det(A) = \prod_{i = 1}^d \lambda_i(A)$, and for any $k \ge 1$,
+$\tr(A^k) = \sum_{i = 1}^d \lambda_i^k(A)$. Furthermore,
+$\|A\| = \sigma_1(A)$, and
+$\|A\|_F = \sqrt{\sum_{i = 1}^d \sigma_i(A)^2}$, so
+$\|A\| \le \|A\|_F$. For any matrix $B \in \R^{d \times d}$, we have
+$\|A B\|_F \le \min\{\|A\| \|B\|_F, \|B\| \|A\|_F\}$. Finally, when
+$A$ is invertible, $\sigma_i(A^{-1}) = \sigma_{d - i}(A)^{-1}$ for
+every $1 \le i \le d$.
+
+Throughout this paper, we let $c_1, c_2, \ldots \in \R$ denote
+positive universal constants. We liberally reuse these symbols, \ie
+every $c_i$ may differ between proofs and statements of different
+results.  From now on, we denote the set $\{1,\dots,d\}$ by $[d]$.
+
+
+\section{Learning Normal Graphical Models}\seclabel{normal}
+Let $d$ be a positive integer, $\sP_d \subseteq \R^{d \times d}$ be
+the set of positive definite $d \times d$ matrices over $\R$, and
+$\sN(\mu, \Sigma)$ denote the multivariate normal distribution with
+mean $\mu \in \R^d$, covariance matrix $\Sigma \in \sP_d$, and
+corresponding probability density function $f_{\mu, \Sigma}$, where
+for $x \in \R^d$,
+\[
+  f_{\mu, \Sigma}(x) = \frac{\exp\left\{ - \frac{1}{2} (x - \mu)\transpose \Sigma^{-1} (x - \mu) \right\} }{(2 \pi)^{d/2} \sqrt{\det(\Sigma)}} .
+\]
+Let $G = ([d], E)$ be a given graph with $m$ edges. Let
+$\sP_G \subseteq \sP_d$ be the following subset of all positive
+definite matrices,
+\[
+  \sP_G = \Big\{ \Sigma \in \sP_d \colon \text{ if } \{i, j\} \not\in E \text{ with } i \neq j \in [d], \text{ then } \Sigma^{-1}_{ij} = 0 \Big\} .
+\]
+The main result of this section is a characterization of the minimax
+risk of
+\[
+  \sF_G = \left\{ f_{\mu, \Sigma} \colon \mu \in \R^d , \, \Sigma \in \sP_G \right\} .
+\]
+It is known that $\sF_G$ is precisely the class of $d$-dimensional
+multivariate normal graphical models with respect to
+$G$~\cite[Proposition~5.2]{graphical-models}.
+
+\subsection{Proof of the upper bound in \thmref{normal-main-bound}}\seclabel{normal-upper}
+We can already prove the upper bound in \thmref{normal-main-bound}
+without lifting a finger.  The proof is similar to that of
+\cite[Theorem 13]{abbas-mixtures}, which is for an upper bound on the
+minimax risk of all multivariate normals, corresponding to the case in
+which $G$ is complete.  Let $\sA$ be the Yatracos class of $\sF_G$,
+\begin{align*}
+  \sA = \Big\{\{x \in \R^d \colon f_{\mu,\Sigma}(x) > f_{\tilde{\mu},\tilde{\Sigma}}(x)\} \colon (\mu,\Sigma) \neq (\tilde{\mu},\tilde{\Sigma}) \in \R^d \times \sP_d \Big\} ,
+\end{align*}
+which, after simplification, is easily seen to be contained in the
+larger class
+\[
+  \sA' = \Big\{\{x \in \R^d \colon x\transpose A x + b\transpose x > c\} \colon A \in \R^{d \times d}, \, b \in \R^d, \, c \in \R \Big\} .
+\]
+and thus $\VC(\sA) \le \VC(\sA')$. It remains to upper-bound
+$\VC(\sA')$.
+
+In general, let $\sG$ be a vector space of real-valued functions, and
+$\sB = \{\{x \colon f(x) > 0\} \colon f \in
+\sG\}$. Dudley~\cite[Theorem~7.2]{dudley_vectorspace} proved that
+$\VC(\sB) \le \dim(\sG)$. (See \cite[Lemma~4.2]{devroye-lugosi} for a
+historical discussion.) In our case, the vector space $\sG$ has a
+basis of monomials
+\[
+  \{1\} \cup \{x_i x_j \colon \{i, j\} \in E\} \cup \{x_i,x_i^2 \colon i\in[d]\} ,
+\]
+so $\VC(\sA') \le m + 2d+1$. By \thmref{risk-vc}, there is a universal
+constant $c > 0$ such that
+\[
+  \sR_n(\sF_G) \le c \sqrt{\frac{\VC(\sA')}{n}} \le c \sqrt{\frac{m + 2d+1}{n}} ,
+\]
+while the upper bound $\sR_n(\sF_G) \leq 1$ follows simply because the
+TV-distance is bounded by $1$. \qed
+
+\subsection{Proof of the lower bound in \thmref{normal-main-bound}}\seclabel{normal-lower}
+Since a lower bound on the order of $\min\{1,\sqrt{d/n}\}$ for
+spherical normals was proved in~\cite[Theorem~2]{acharya-lower-bound},
+the lower bound in \thmref{normal-main-bound} follows from
+subadditivity of the square root after the following proposition.
+\begin{prop}\proplabel{normal-lower-bound}
+  There exist $c_1, c_2 > 0$ such that for any graph $G = ([d], E)$
+  with $m$ edges, where $n \ge c_1 m$,
+  \[
+    \sR_n(\sF_G) \ge c_2 \sqrt{m/n} .
+  \]
+\end{prop}
+Note that if $n < c_1 m$, then
+$\sR_n(\sF_G) \geq \sR_{c_1 m}(\sF_G) \ge c_2 \sqrt{1/c_1}$, which
+implies the lower bound in \thmref{normal-main-bound} in this regime
+for $n$. We prove \propref{normal-lower-bound} via
+\lemref{fano-lower}.  This involves choosing a finite subset of
+$\sF_G$.  Our normal densities will be mean-zero, but the covariance
+matrices will be chosen carefully.  To make this choice, we use the
+next result which follows from an old theorem of
+Gilbert~\cite{gilbert} and independently Varshamov~\cite{varshamov}
+from coding theory.
+\begin{thm}\thmlabel{gilbert-varshamov}
+  There is a subset $Q \subseteq \{-1, 1\}^m$ of size at least
+  $2^{m/5}$ such that for any distinct $s, \tilde{s} \in Q$, we have
+  $\norm{s - \tilde{s}}_1 \ge m/3$.
+\end{thm}
+\begin{proof}
+  We give an iterative algorithm to build $Q$: choose a vertex from
+  the hypercube, put it in $Q$, remove the hypercube points in the
+  corresponding $L^1$-ball of radius $m/3$, and repeat.  Since the
+  intersection of this ball and the hypercube has size at most
+  \[
+    \sum_{i=0}^{m/6} \binom{m}{i} \leq \left(\frac {em}{m/6}\right)^{m/6} = (6e)^{m/6} < 2^{4m/5},
+  \]
+  the size of the final set $Q$ will be at least $2^{m/5}$.
+\end{proof}
+
+Let $\sS \subseteq \{-1, 1\}^{m}$ be as in \thmref{gilbert-varshamov},
+so that $|\sS| \ge 2^{m/5}$ and for any distinct
+$s, \tilde{s} \in \sS$, $\norm{s - \tilde{s}}_1 \ge m/3$.  Let
+$\delta > 0$ be a real number to be specified later. Enumerate the
+edges of $G$ from $1$ to $m$, and for $s \in \sS$, set
+$\Sigma(s)^{-1}$ to be the $d \times d$ matrix with entries
+\[
+  \Sigma(s)^{-1}_{i j} = \left\{\begin{array}{ll}
+                                  1 & \mbox{if $i = j$,} \\
+                                  0 & \mbox{if $i \neq j$ and $\{i, j\} \not\in E$,} \\
+                                  \delta s_{\{i, j\}} & \mbox{if $i \neq j$ and $\{i, j\} \in E$.}
+                                 \end{array} \right.
+\]
+In other words, $\Sigma(s)^{-1}$ is symmetric with all ones on its
+diagonal, $\pm \delta$ everywhere along the nonzero entries of the
+adjacency matrix of $G$ according to the signs in $s$, and $0$
+elsewhere.
+\begin{lem}\lemlabel{psd}
+  Suppose that $\delta^2 m \le 1/8$. Then, for any $s \in \sS$, the
+  matrix $\Sigma(s)^{-1}$ is positive definite.
+\end{lem}
+\begin{proof}
+  Since $\Sigma(s)^{-1}$ is symmetric and real, all its eigenvalues
+  are real. Write $\Sigma(s)^{-1} = I + \Delta$, so that
+  $\lambda_i(\Sigma(s)^{-1}) = 1 + \lambda_i(\Delta)$. Observe that
+  \[
+    |\lambda_i(\Delta)| \le \|\Delta\| \le \|\Delta\|_F \le \sqrt{2 \delta^2 m} \le 1/2 .
+  \]
+  Then,
+  $\lambda_i(\Sigma(s)^{-1}) \ge 1/2$ for every $1 \le i \le d$, and so
+  $\Sigma(s)^{-1}$ is positive definite.
+\end{proof}
+We will assume from now on that $\delta^2 m \le 1/8$.  In light of
+\lemref{psd}, $\Sigma(s)^{-1}$ is positive definite, so it is
+invertible, and we let $\Sigma(s)$ denote its inverse.  Since we will
+always take the mean to be $0$, we will write $f_{\Sigma}$ for
+$f_{0, \Sigma}$ from now on.  We define the set
+$\sW = \{\Sigma(s) \colon s \in \sS\}$ of covariance matrices, and let
+\[
+  \sF = \{f_{\Sigma} \colon \Sigma \in \sW\} .
+\]
+In order to prove \propref{normal-lower-bound} via
+\lemref{fano-lower}, it suffices to exhibit upper bounds on the
+KL-divergence between any two densities in $\sF$, and lower bounds on
+their $L^1$-distances.
+\begin{lem}\lemlabel{normal-kl}
+  There exist $c_1, c_2 > 0$ such that for any
+  $\Sigma, \tilde{\Sigma} \in \sP_d$ satisfying
+  $\max\{\|\Sigma^{-1} - I\|_F, \|\tilde{\Sigma}^{-1} - I\|_F\} \le
+  c_1$,
+  \[
+    \infdiv{f_{\Sigma}}{f_{\tilde{\Sigma}}} \le c_2
+    \|\tilde{\Sigma}^{-1} - \Sigma^{-1}\|_F^2.
+  \]
+\end{lem}
+\begin{proof}
+  We consider a symmetrized KL-divergence, often
+  called the \emph{Jeffreys divergence}~\cite{kullback-book},
+  \[
+    \sinfdiv{f_{\Sigma}}{f_{\tilde{\Sigma}}} = \infdiv{f_{\Sigma}}{f_{\tilde{\Sigma}}} + \infdiv{f_{\tilde{\Sigma}}}{f_\Sigma} ,
+  \]
+  which clearly serves as an upper bound on the quantity of
+  interest. It is well known that
+  \[
+    \sinfdiv{f_\Sigma}{f_{\tilde{\Sigma}}} =  \tr((\Sigma - \tilde{\Sigma}) (\tilde\Sigma^{-1} - {\Sigma}^{-1}))/2 ,
+  \]
+  \eg by \cite[Section 9.1]{kullback-book}. By the Cauchy-Schwarz
+  inequality for the inner product
+  $\langle A, B \rangle = \tr(A\transpose B)$,
+  \[
+    \sinfdiv{f_{\Sigma}}{f_{\tilde{\Sigma}}} \le \norm{\tilde{\Sigma}^{-1} - \Sigma^{-1}}_F \norm{\Sigma - \tilde{\Sigma}}_F/2 .
+  \]
+  Notice now that
+  $\Sigma - \tilde{\Sigma} = \Sigma (\tilde{\Sigma}^{-1} -
+  \Sigma^{-1}) \tilde{\Sigma}$, so
+  \begin{align*}
+    \norm{\Sigma - \tilde{\Sigma}}_F &= \norm{\Sigma (\tilde{\Sigma}^{-1} - \Sigma^{-1}) \tilde{\Sigma}}_F\le \norm{\Sigma} \cdot \norm{\tilde{\Sigma}} \cdot \norm{\tilde{\Sigma}^{-1} - \Sigma^{-1}}_F,
+  \end{align*}
+  so that
+  \[
+    \sinfdiv{f_\Sigma}{f_{\tilde{\Sigma}}} \le \norm{\Sigma}\cdot
+     \norm{\tilde{\Sigma}} \cdot \norm{\tilde{\Sigma}^{-1} -
+      \Sigma^{-1}}_F^2 /2 .
+  \]
+  Write $\Sigma^{-1} = I + \Delta$ just as in the proof of
+  \lemref{psd}. Then,
+  \[
+    \norm{\Sigma} = \sigma_1(\Sigma) = \frac{1}{\sigma_d(\Sigma^{-1})} \le \frac{1}{1 - \|\Delta\|} \le \frac{1}{1 - \|\Delta\|_F} \le \frac{1}{1 - c_1} ,
+  \]
+  and the same bound holds for $\norm{\tilde{\Sigma}}$, whence $\sinfdiv{f_{\Sigma}}{f_{\tilde{\Sigma}}} \le c_2 \|\tilde{\Sigma}^{-1} - \Sigma^{-1}\|_F^2$.
+\end{proof}
+
+Unfortunately, the $L^1$-distance between multivariate normals does
+not have such a nice expression as the Jeffreys divergence does. To
+control some of the quantities involved in the computation of the
+$L^1$-distance, we recall some properties of sub-gaussian random
+variables.
+
+The \emph{sub-gaussian norm} of a random variable $X$ is defined to be
+\[
+	\|X\|_{\psi_2} = \inf\left\{ t > 0 \colon \E\{e^{(X/t)^2}\} \le 2 \right\} .
+\]
+A random variable $X$ is called \emph{sub-gaussian} if
+$\|X\|_{\psi_2} < \infty$. Observe in particular that $\sN(0, 1)$ and
+any bounded random variable are sub-gaussian. Recall now the following
+well-known large deviation inequality for quadratic forms of
+sub-gaussian random vectors.
+\begin{thm}[Hanson-Wright inequality 
+  \protect{\cite[Theorem 6.2.1]{vershynin-book}},
+  see also \protect{\cite[Example~2.12]{gabor-concentration}}]\thmlabel{hanson-wright}
+  Let $X = (X_1, \dots, X_d)$ be a random vector with independent
+  mean-zero components satisfying
+  $\max_{1 \le i \le d} \|X_i\|_{\psi_2} \le K$, and let
+  $A \in \R^{d \times d}$. Then, for every $t \ge 0$,
+  \[
+    \Pr\Big\{ |X\transpose A X - \E X\transpose A X| > t \Big\} \le 2
+    \exp\left\{ - C \min \left\{ \frac{t^2}{K^4 \|A\|_F^2},
+        \frac{t}{K^2 \|A\|} \right\}\right\} ,
+  \]
+  for some universal constant $C > 0$.
+\end{thm}
+
+A square matrix is called \emph{zero-diagonal} if all its diagonal
+entries are zero.
+
+\begin{lem}\lemlabel{form-utils}
+  Let $X = (X_1, \dots, X_d)$ be a random vector with i.i.d.\
+  components where $\E\{X_1\} = 0$, $\E\{X_1^2\} = 1$, and $\|X_1\|_{\psi_2} \le
+  K$. Let $A \in \R^{d \times d}$ be symmetric and zero-diagonal. Then,
+  \begin{enumerate}[label=(\roman*)]
+  \item \label{1-moment} $ \E\{X\transpose A X\} = 0 .$ 
+  \item \label{2-moment} $\E\{(X\transpose A X)^2\} = 2 \|A\|_F^2 .$
+  \item \label{k-moment} There exists $c_3>0$ such that for any integer $k$ we have 
+    \[
+      \E\{(X\transpose A X)^k\} \le c_3^k K^{2k} k! \|A\|_F^k .
+    \]
+  \item \label{exp-moment} There exist $c_1, c_2 > 0$ such that for any
+    $t > 0$, if $c_1 K^2 t \|A\|_F\leq 1$, then
+    \[
+      \E\{e^{t X\transpose A X}\} \le 1 + c_2 K^4 t^2 \|A\|_F^2.
+    \]
+  \end{enumerate}
+\end{lem}
+\begin{proof}
+  Observation \ref{1-moment} follows simply by writing out the quadratic form,
+  \begin{align*}
+    \E\{X\transpose A X\} = \sum_{i , j} A_{ij} \E\{X_i X_j\} = \sum_{i = 1}^d A_{ii} \E\{X_i^2\} + \sum_{i \neq j} A_{ij} \E\{X_i\} \E\{X_j\} = 0 .
+  \end{align*}
+
+  To prove \ref{2-moment}, we expand the square, and notice that only
+  the monomials of the form $\E \{X_i^4\}$ or $\E\{X_i^2 X_j^2\}$ are
+  nonzero after taking expectations, so
+  \begin{align*}
+    \E\{(X\transpose A X)^2\} & = \E\left\{ \left( \sum_{i, j} A_{ij} X_i X_j \right)^2 \right\}  \\
+                              & = \sum_{i = 1}^d A_{ii}^2 \E \{X_i^4\}
+                                + \sum_{i\neq j} \left(A_{ij}^2 + A_{ij} A_{ji}\right) \E \{X_i^2 X_j^2\} \\
+                              &= 2 \sum_{i \neq j} A_{i j}^2 = 2 \|A\|_F^2.
+  \end{align*}
+
+  For \ref{k-moment}, we integrate
+  \begin{align*}
+    \E\{(X\transpose A X)^k\} &\le \int_0^\infty \Pr\{|X\transpose A X|^k \ge t\} \dif t \\
+                      &\le 2 \int_0^\infty e^{-C \frac{t^{1/k}}{K^2 \|A\|}} \dif t + 2\int_0^\infty e^{-C \frac{t^{2/k}}{K^4 \|A\|_F^2}} \dif t \tag{by \thmref{hanson-wright}} \\
+                      &= 2 \Gamma(k + 1) \left( \frac{K^2 \|A\|}{C} \right)^k + 2 \Gamma(k/2 + 1) \left( \frac{K^4 \|A\|_F^2}{C} \right)^{k/2}  \\
+                      &\le c_3^k K^{2k} k! \|A\|_F^k ,
+  \end{align*}
+   for some $c_3 > 0$. 
+  
+   To prove \ref{exp-moment}, we use the power series representation
+   of the exponential, so
+  \begin{align*}
+   \E\{e^{t X\transpose A X}\} -1 = \sum_{k = 1}^\infty \frac{\E\{(t X\transpose A X)^k\}}{k!} 
+                       \le  \sum_{k = 2}^\infty \frac{(c_3 K^2 t \|A\|_F)^k k!}{k!} 
+                       \le 2 c_3^2 K^4 t^2 \|A\|_F^2 ,
+  \end{align*}
+  by \ref{1-moment} and \ref{k-moment}, as long as $ 2c_3^2 K^2 t \|A\|_F \leq 1 $.
+\end{proof}
+
+\begin{lem}\lemlabel{determinants}
+  There exist $c_1, c_2 > 0$ such that for any $\Sigma \in \sP_d$ with
+  $\tr(\Sigma^{-1} - I) = 0$ and $\|\Sigma^{-1} - I\|_F \le c_1$, we
+  have
+  \[
+    1 \leq \det(\Sigma)  \le 1 + c_2 \|\Sigma^{-1} - I\|_F^2 .
+  \]
+\end{lem}
+\begin{proof}
+  Write $\Sigma^{-1} = I + \Delta$. Then,
+  \[
+    \log \det \Sigma^{-1} = \sum_{i = 1}^d \log (1 + \lambda_i(\Delta)) \le \sum_{i = 1}^d \lambda_i(\Delta) = \tr(\Delta) = 0 ,
+  \]
+  and the lower bound follows. Furthermore, observe that
+  \[
+    |\lambda_i(\Delta)| \le \|\Delta\|=\|\Sigma^{-1} - I\| \le \|\Sigma^{-1} - I\|_F \le c_1 .
+  \]
+  If $c_1$ is sufficiently small, then
+  \begin{align*}
+    \log \det \Sigma^{-1} = \sum_{i = 1}^d \log (1 + \lambda_i(\Delta)) 
+    \ge \sum_{i = 1}^d (\lambda_i(\Delta) - 2 \lambda_i(\Delta)^2) 
+    = \tr(\Delta) - 2 \tr(\Delta^2) .
+  \end{align*}
+  Then, since $\tr(\Delta) = 0$ and 
+  $\tr(\Delta^2) = \|\Delta\|_F^2$ by symmetry of $\Delta$,
+  \begin{align*}
+    \log \det \Sigma =-\log \det \Sigma^{-1} \le -\tr(\Delta)+2 \tr(\Delta^2) = 2 \|\Sigma^{-1} - I\|_F^2 ,
+  \end{align*}
+  and again for sufficiently small $c_1$,
+  \[
+    \det(\Sigma) \le e^{2 \|\Sigma^{-1} - I\|_F^2} \le 1 + 4 \|\Sigma^{-1} - I\|_F^2 . \qedhere
+  \]
+\end{proof}
+
+\begin{lem}\lemlabel{normal-l1}
+  There are $c_1, c_2, c_3 > 0$ such that for any
+  $\Sigma, \tilde{\Sigma} \in \sP_d$ such that $\Sigma^{-1} - I$ and
+  $\tilde{\Sigma}^{-1} - I$ are zero-diagonal and
+  $\max\{\|\Sigma^{-1} - I\|_F, \|\tilde{\Sigma}^{-1} - I\|_F\} \le
+  c_1$,
+  \[
+    \norm{f_{\Sigma} - f_{\tilde{\Sigma}}}_1 \ge c_2 \|\Sigma^{-1} - \tilde{\Sigma}^{-1}\|_F - c_3 (\|\Sigma^{-1} - I\|_F^2 + \|\tilde{\Sigma}^{-1} - I\|_F^2) .
+  \]
+\end{lem}
+
+
+\begin{proof}
+  By~\lemref{determinants} and the triangle inequality,
+  \begin{align*}
+    &\norm{f_\Sigma - f_{\tilde{\Sigma}}}_1 \\
+    &\quad = (2\pi)^{-d/2} \int_{\R^d} \left| \frac{e^{ - \frac{1}{2} x\transpose \Sigma^{-1} x}}{\sqrt{\det(\Sigma)}} - \frac{e^{-\frac{1}{2} x\transpose \tilde{\Sigma}^{-1} x}}{\sqrt{\det(\tilde{\Sigma})}} \right|  \dif x \\
+    &\quad \ge \hspace{1.1em} (2\pi)^{-d/2} \int_{\R^d} e^{-\frac{1}{2} x\transpose x} \left| e^{-\frac{1}{2} x\transpose(\Sigma^{-1} - I) x} - e^{-\frac{1}{2}x\transpose (\tilde{\Sigma}^{-1} - I)x}\right| \dif x \\
+    &\quad \quad -\, c_4 (\|\Sigma^{-1} - I\|_F^2 + \|\tilde{\Sigma}^{-1} - I\|_F^2) \\
+    &\quad = \hspace{1.1em} \E\left\{ \left|e^{-\frac{1}{2} X\transpose (\Sigma^{-1} - I) X} - e^{-\frac{1}{2} X\transpose (\tilde{\Sigma}^{-1} - I) X}\right| \right\} \\
+    &\quad \quad -\, c_4 (\|\Sigma^{-1} - I\|_F^2 + \|\tilde{\Sigma}^{-1} - I\|_F^2) ,
+  \end{align*}
+  where the expectation is with respect to
+  $X = (X_1, \dots, X_d) \sim \sN(0, I)$, a $d$-dimensional standard
+  normal vector. Observe now the following chain of elementary
+  inequalities,
+  \begin{align}
+    1 + t  \le e^t \le 1 + t + \frac{t^2}{2} \max\{e^t, 1\} , \eqlabel{exp-frieze}
+  \end{align}
+  which holds for all $t \in \R$. By the triangle inequality again,
+  \begin{align}
+    &\E\left\{ \left|e^{-\frac{1}{2} X\transpose (\Sigma^{-1} - I) X} - e^{-\frac{1}{2} X\transpose (\tilde{\Sigma}^{-1} - I) X}\right| \right\} \notag \\
+    &\qquad \ge \hspace{1.1em} (1/2) \E\left\{|X\transpose (\Sigma^{-1} - \tilde{\Sigma}^{-1})X|\right\} \eqlabel{threelineexpression}\\
+                                                  &\qquad \quad -\, (1/8) \E\left\{ (X\transpose (\Sigma^{-1} - I)X)^2 \max\{e^{-X\transpose (\Sigma^{-1} - I) X/2}, 1\} \right\} \eqlabel{normal-l1-term-2} \\
+                                                &\qquad \quad -\, (1/8) \E\left\{ (X\transpose (\tilde{\Sigma}^{-1} - I)X)^2 \max\{e^{- X\transpose (\tilde{\Sigma}^{-1} - I) X/2}, 1\} \right\} . \eqlabel{normal-l1-term-3}
+  \end{align}
+  We start with the term \eqref{normal-l1-term-2} in this expression. By Cauchy-Schwarz
+  and \lemref{form-utils}~\ref{k-moment}, \ref{exp-moment}, for some $c_5 > 0$
+  \begin{align*}
+    &\E\left\{ (X\transpose (\Sigma^{-1} - I)X)^2 \max\{e^{X\transpose (I - \Sigma^{-1}) X/2}, 1\} \right\} \\
+    &\qquad \le \sqrt{\E\left\{(X\transpose (\Sigma^{-1} - I) X)^4\right\} \left( \E\{e^{X\transpose (I - \Sigma^{-1}) X}\} + 1\right) } \\
+                                                                                           &\qquad \le c_5 \sqrt{ \|\Sigma^{-1} - I\|_F^4} = c_5 \|\Sigma^{-1} - I\|_F^2.
+  \end{align*}
+  A similar computation gives that \eqref{normal-l1-term-3} is also at
+  most $c_5\|\tilde{\Sigma}^{-1} - I\|_F^2$, so to complete the proof
+  we need to bound \eqref{threelineexpression} from below. By
+  H\"{o}lder's inequality and \lemref{form-utils}~\ref{2-moment},
+  \ref{k-moment}, there exists some $c_6 > 0$ for which
+  \begin{align*}
+    \E\left\{|X\transpose (\Sigma^{-1} - \tilde{\Sigma}^{-1}) X| \right\} &\ge \frac{\E\left\{ (X\transpose (\Sigma^{-1} - \tilde{\Sigma}^{-1})X)^2\right\}^{3/2}}{\E\left\{ (X\transpose (\Sigma^{-1} - \tilde{\Sigma}^{-1})X)^4\right\}^{1/2}} \\
+                                                                          &\ge \frac{(2\norm{\Sigma^{-1} - \tilde{\Sigma}^{-1}}_F^2)^{3/2}}{ (c_6 \|\Sigma^{-1} - \tilde{\Sigma}^{-1}\|_F^4)^{1/2}} \\
+    &= (8/c_6)^{1/2} \|\Sigma^{-1} - \tilde{\Sigma}^{-1}\|_F . \qedhere
+  \end{align*}
+\end{proof}
+
+\begin{proof}[Proof of \propref{normal-lower-bound}]
+  In the notation of \lemref{fano-lower}, we have by
+  \thmref{gilbert-varshamov}, \lemref{normal-kl}, and
+  \lemref{normal-l1}, for some $c_1, c_2 > 0$,
+  \[
+    |\sF| \ge 2^{m/5}, \quad \alpha \ge c_1 \delta \sqrt{m}, \quad \beta \le c_2 \delta^2 m, 
+  \]
+  as long as $\delta^2m$ is smaller than some absolute constant.  So,
+  we may pick $\delta = c_3/\sqrt{n}$ for sufficiently small $c_3 > 0$
+  for which
+  \[
+    1 - \frac{n \beta + \log 2}{\log |\sF|} \ge \frac{1}{2} .
+  \]
+  Then, by \lemref{fano-lower},
+  $\sR_n(\sF_G) \ge \alpha/8 \ge (c_1 c_3/8) \sqrt{m/n}$ as long as
+  $n \ge c_4 m$ for some $c_4> 0$.
+\end{proof}
+
+\section{Learning Ising Graphical Models}\seclabel{ising}
+The \emph{Ising model} describes a probability distribution on the
+binary hypercube $\{-1, 1\}^d$ for some $d \ge 1$, where a particular
+vector $x \in \{-1, 1\}^d$ is called a \emph{configuration}.  One such
+distribution is parametrized by a graph $G = ([d], E)$ with a set of
+edge weights $w_{ij} \in \R$ for every edge $\{i, j\} \in E$ called
+\emph{interactions}, and some weights $h_i \in \R$ for $1 \le i \le d$
+called the \emph{external magnetic field}. These parameters define the
+\emph{Hamiltonian} $H \colon \{-1, 1\}^d \to \R$,
+\[
+  H(x) = \sum_{\{i, j\} \in E} w_{ij} x_i x_j + \sum_{i = 1}^d h_i x_i.
+\]
+Any configuration $x \in \{-1, 1\}^d$ then appears with probability
+proportional to $\exp\{H(x)\}$. In fact, we can write
+$H(x) = H_{h, W}(x) = x\transpose W x + h\transpose x$ for a vector
+$h \in \R^d$ and a matrix $W \in \sM_G$, where
+\[
+  \sM_G = \Big\{W \in \R^{d \times d} \colon \text{ if } \{i, j\} \not\in E \text{ with } i \neq j \in [d], \text{ then } W_{ij} = 0 \Big\} ,
+\]
+and in particular,
+\[
+  W_{ij} = \left\{ \begin{array}{ll}
+                     0 & \mbox{if $\{i, j\} \not\in E$,} \\
+                     w_{ij}/2 & \mbox{if $\{i, j\} \in E$.}
+                   \end{array} \right.
+\]
+The probability mass function of the Ising model with interactions $W$
+and external magnetic field $h$ is denoted by $f_{h, W}$, where
+\begin{align}
+  f_{h, W}(x) = \frac{e^{H_{h, W}(x)}}{Z(h, W)} , \eqlabel{gibbs}
+\end{align}
+where the normalizing factor $Z(h, W)$ is called the \emph{partition
+  function}, which is defined by
+\[
+  Z(h, W) = \sum_{x \in \{-1, 1\}^d} e^{H_{h, W}(x)} .
+\]
+Probability distributions whose densities have the form \eqref{gibbs}
+for general Hamiltonians are known as \emph{Gibbs distributions} or
+\emph{Boltzmann distributions}.
+
+Given a graph $G$, let $\sI_G$ be the class of all Ising
+models with interactions in $\sM_G$,
+\[
+  \sI_G = \left\{ f_{h, W} \colon h\in \R^d, \, W \in \sM_G \right\} ,
+\]
+and let $\sI'_G$ be the subclass with no external magnetic field,
+\[
+  \sI'_G = \left\{ f_{0, W} \colon W \in \sM_G \right\} .
+\]
+As in \secref{normal}, $\sI_G$ is the class of all $d$-dimensional
+Ising models whose components form a graphical model with respect to
+$G$, and similarly for $\sI'_G$.
+
+We omit detailed proofs of the upper bounds in
+\thmref{ising-main-bound}, since they are virtually identical to that
+of \thmref{normal-main-bound} as given in \secref{normal-upper}.  For
+$\sI_G$, the corresponding vector space has the basis
+\[
+  \{1\} \cup \{x_i x_j \colon \{i, j\} \in E\} \cup \{x_i \colon i\in[d]\} ,
+\]
+with $m + d + 1$ elements, while for $\sI'_G$, the corresponding
+vector space does not have the last $d$ basis vectors, so it has
+dimension $m + 1$. In the case that $m = 0$, the class $\sI'_G$
+contains only one distribution (the uniform distribution on
+$\{-1, 1\}^d$), and thus in fact $\sR_n(\sI'_G) = 0$. Thus for any
+$m\geq0$ and any $G$ with $m$ edges, $\sR_n(\sI'_G) \le c \sqrt{ m/n}$
+for some constant $c > 0$.
+
+\subsection{Proof of the lower bound in \thmref{ising-main-bound}~\ref{ising-2}}\seclabel{ising-construction}
+Since all of our Ising models in this section will have no external
+magnetic field, we write $f_{W}$ for $f_{0, W}$, $H_W$ for $H_{0, W}$,
+and $Z(W)$ for $Z(0, W)$.  As in \secref{normal-lower}, the lower
+bound in \thmref{ising-main-bound}~\ref{ising-2} follows from the
+following proposition.
+\begin{prop}\proplabel{ising-lower-bound}
+  There exist $c_1, c_2 > 0$ such that for any graph $G = ([d], E)$
+  with $m$ edges, where $n \ge c_1 m$,
+  \[
+    \sR_n(\sI'_G) \ge c_2 \sqrt{m/n} .
+  \]
+\end{prop}
+We appeal to \lemref{fano-lower} again. The construction and proof
+techniques are very similar to the previous section. Indeed, let
+$\sS \subseteq \{-1, 1\}^{m}$ be a set of sign vectors as in
+\thmref{gilbert-varshamov}, satisfying $|\sS| \ge 2^{m/5}$ and for any
+distinct $s, \tilde{s} \in \sS$, $\norm{s - \tilde{s}}_1 \ge m/3$. For
+$s \in \sS$, define the zero-diagonal symmetric matrix
+$W(s) \in \sM_G$ with entries
+\[
+  W(s)_{ij} = \left\{\begin{array}{ll}
+               0 & \mbox{if $i=j$ or $\{i, j\} \not\in E$,} \\
+               \delta s_{\{i, j\}} & \mbox{if $\{i, j\} \in E$.}
+             \end{array} \right.
+\]
+Then let $\sW = \{ W(s) \colon s \in \sS \}$ be a set of interactions,
+and $\sI = \{f_W \colon W \in \sW\}$ be the finite class of Ising
+models with interactions from $\sW$.
+
+Now, to control the $L^1$-distance and KL-divergence between
+distributions in $\sI$, a few intermediate computations are
+necessary. Throughout this section, let $X = (X_1, \dots, X_d)$ denote
+a uniformly random vector in $\{-1, 1\}^d$.  All expectations will be
+with respect to this random variable.
+
+\begin{lem}\lemlabel{partition-function}
+  There exist $c_1, c_2 > 0$ such that for any zero-diagonal symmetric
+  $W \in \R^{d \times d}$ with $\|W\|_F \le c_1$,
+  \[
+    1 \le 2^{-d} Z(W) \le 1 + c_2 \|W\|_F^2 .
+  \]
+\end{lem}
+\begin{proof}
+  We have
+  \begin{align*}
+    2^{-d} Z(W) = \sum_{x \in \{-1, 1\}^d} 2^{-d} e^{X\transpose W X} = \E\{e^{X\transpose W X}\} .
+  \end{align*}
+  On the one hand, by \lemref{form-utils}~\ref{1-moment}, 
+  \[
+    \E\{e^{X\transpose W X }\} \ge \E\{1+X\transpose W X\} = 1 + \E\{X\transpose W X\} = 1 ,
+  \]
+  and on the other hand, by \lemref{form-utils}~\ref{exp-moment},
+  \begin{align*}
+    \E\{e^{X\transpose W X }\} \le 1 + c_2 \|W\|_F^2,
+  \end{align*}
+  as long as $\|W\|_F \leq c_1$ for some sufficiently small constant
+  $c_1 > 0$.
+\end{proof}
+
+\begin{lem}\lemlabel{ising-kl}
+  There exist $c_1, c_2 > 0$ such that for any zero-diagonal symmetric
+  $W, \tilde{W} \in \R^{d \times d}$ satisfying
+  $\max\{\|W\|_F, \|\tilde{W}\|_F\} \le c_1$,
+  \[
+  	\infdiv{f_W}{f_{\tilde{W}}} \le c_2 (\|W\|_F + \|\tilde{W}\|_F)^2 .
+  \]
+\end{lem}
+\begin{proof}
+  We again prove the result for
+  $\sinfdiv{f_W}{f_{\tilde{W}}} = \infdiv{f_W}{f_{\tilde{W}}} +
+  \infdiv{f_{\tilde{W}}}{f_W}$. By \lemref{partition-function},
+  \begin{align*}
+    &\sinfdiv{f_W}{f_{\tilde{W}}} \\
+    &\quad = 2^d \E\left\{ (f_W(X) - f_{\tilde{W}}(X)) \log\left(\frac{f_W(X)}{f_{\tilde{W}}(X)}\right)\right\} \\
+                                 &\quad \le 2^d \E\left\{ (f_W(X) - f_{\tilde{W}}(X)) (H_W(X) - H_{\tilde{W}}(X)) \right\}  + c_3 (\|W\|_F^2 + \|\tilde{W}\|_F^2) \\
+                                 &\quad \le \E\left\{ \left(e^{H_W(X)} - e^{H_{\tilde{W}}(X)} \right) (H_W(X) - H_{\tilde{W}}(X)) \right\} + c_4 (\|W\|_F^2 + \|\tilde{W}\|_F^2) .
+  \end{align*}
+  It is not hard to see using \eqref{exp-frieze} that for all
+  $t, s \in \R$,
+  \[
+    (e^t - e^s) (t - s) \le (t - s)^2 + |t - s| \left(t^2 \max\{e^t, 1\} + s^2 \max\{e^s, 1\}\right)/2 .
+  \]
+  Using this, we get the following upper bound,
+  \begin{align}
+    &\E\left\{ \left(e^{H_W(X)} - e^{H_{\tilde{W}}(X)} \right) (H_W(X) - H_{\tilde{W}}(X)) \right\} \notag \\
+    &\qquad \le \hspace{1.1em} \E\{(H_W(X) - H_{\tilde{W}}(X))^2\} \eqlabel{ising-kl-term-1} \\
+    &\qquad \quad +\, \E\left\{ |H_W(X) - H_{\tilde{W}}(X)| \, H_W(X)^2 \max\{e^{H_W(X)}, 1\}/2\right\} \eqlabel{ising-kl-term-2} \\
+    &\qquad \quad +\, \E\left\{ |H_W(X) - H_{\tilde{W}}(X)| \, H_{\tilde{W}}(X)^2 \max\{e^{H_{\tilde{W}}(X)}, 1\} /2 \right\} . \eqlabel{ising-kl-term-3}
+  \end{align}
+  The term \eqref{ising-kl-term-1} is
+  $2 \|W - \tilde{W}\|_F^2 \le 2 (\|W\|_F + \|\tilde{W}\|_F)^2$ by
+  \lemref{form-utils}~\ref{2-moment} and the triangle inequality for the Frobenius norm. For \eqref{ising-kl-term-2}, by two applications of the
+  Cauchy-Schwarz inequality, and \lemref{form-utils}~\ref{k-moment}, \ref{exp-moment},
+  \begin{align*}
+    &\E\left\{ |H_W(X) - H_{\tilde{W}}(X)| H_W(X)^2 \max\{e^{H_W(X)}, 1\}\right\} \\
+ &\qquad \le \sqrt{ \E\{ (H_W(X) - H_{\tilde{W}}(X))^2 H_W(X)^4\} (\E\{e^{2 H_W(X)}\} + 1) } \\
+ &\qquad \le c_5 \left(\E\{(H_W(X) - H_{\tilde{W}}(X))^4\} \E\{H_W(X)^8\}\right)^{1/4} \\
+ &\qquad \le c_6 \|W - \tilde{W}\|_F \|W\|_F^2 \\
+ &\qquad \le c_7 \|W\|_F^2 .
+  \end{align*}
+  A similar bound holds for \eqref{ising-kl-term-3}, after which the result follows.
+\end{proof}
+
+\begin{lem}\lemlabel{ising-l1}
+  There exist $c_1, c_2, c_3 > 0$ such that for any zero-diagonal
+  symmetric $W, \tilde{W} \in \R^{d \times d}$ with
+  $\max\{\|W\|_F, \|\tilde{W}\|_F\} < c_1$,
+  \[
+    \norm{f_W - f_{\tilde{W}}}_1 \ge c_2 \|W - \tilde{W}\|_F - c_3(\|W\|_F^2 + \|\tilde{W}\|_F^2).
+  \]
+\end{lem}
+\begin{proof}
+  By the triangle inequality, there is $c_4 > 0$
+  for which
+  \begin{align}
+    \norm{f_W - f_{\tilde{W}}}_1 &= 2^d \E\left\{ \left| \frac{e^{H_W(X)}}{Z(W)} - \frac{e^{H_{\tilde{W}}(X)}}{Z(\tilde{W})} \right| \right\} \notag \\
+                              &\ge \E \left\{ \left| e^{H_W(X)} - e^{H_{\tilde{W}}(X)} \right| \right\} -  c_4 (\|W\|_F^2 + \|\tilde{W}\|_F^2) . \tag{by \lemref{partition-function}} 
+  \end{align}
+  By \eqref{exp-frieze} and the triangle inequality again,
+  \begin{align*}
+    \E\left\{\left|e^{H_W(X)} - e^{H_{\tilde{W}}(X)}\right|\right\} &\ge \E\{|H_W(X) - H_{\tilde{W}}(X)|\} \\
+                                                                    &\hphantom{\ge} -\, (1/2) \E\left\{H_W(X)^2 \max\{e^{H_W(X)}, 1\}\right\} \\
+                                                                    &\hphantom{\ge} -\, (1/2) \E\left\{H_{\tilde{W}}(X)^2 \max\{e^{H_{\tilde{W}}(X)}, 1\}\right\} .
+  \end{align*}
+  We bound the second term. By Cauchy-Schwarz and
+  \lemref{form-utils}~\ref{k-moment}, \ref{exp-moment},
+  \begin{align*}
+    \E\left\{H_W(X)^2 \max\{e^{H_W(X)}, 1\}\right\} \le \sqrt{\E\{H_W(X)^4\} (\E\{e^{2H_W(X)}\} + 1)} \le c_5 \|W\|_F^2,
+  \end{align*}
+  and a similar analysis works for the third term. For the first term,
+  by H\"{o}lder's inequality and \lemref{form-utils}~\ref{2-moment},
+  \ref{k-moment}, there is a $c_6 > 0$ for which
+  \begin{align*}
+    \E\left\{|H_W(X) - H_{\tilde{W}}(X)| \right\} &\ge \frac{\E\left\{(H_W(X) - H_{\tilde{W}}(X))^2\right\}^{3/2}}{\E\left\{(H_W(X) - H_{\tilde{W}}(X))^4\right\}^{1/2}} \ge c_6 \|W - \tilde{W}\|_F . \qedhere
+  \end{align*}
+\end{proof}
+
+The proof of \propref{ising-lower-bound} is now identical to that of
+\propref{normal-lower-bound}.
+
+\subsection{Proof of the lower bound in \thmref{ising-main-bound}~\ref{ising-1}}
+Let $\sI'_d$ be the class of $d$-dimensional Ising models with no
+interactions. The lower bound in
+\thmref{ising-main-bound}~\ref{ising-1} will follow from the next
+proposition along with \thmref{ising-main-bound}~\ref{ising-2} and
+subadditivity of the square root, just as in \secref{normal-lower}.
+\begin{prop}\proplabel{no-external}
+  There exist $c_1, c_2 > 0$ such that if $n \ge c_1 d$, 
+  \[
+    \sR_n(\sI'_d) \ge c_2 \sqrt{d/n} .
+  \]
+\end{prop}
+\begin{proof}[Proof sketch.]
+  As in the above arguments, we pick a subclass of $2^{d/5}$ densities
+  of $\sI'_d$ and apply \lemref{fano-lower}.  The corresponding
+  magnetic fields will have entries $\pm \delta$, with the signs
+  specified by \thmref{gilbert-varshamov}, so that any two of them
+  differ in at least $d/6$ components.  One can then show that the
+  KL-divergence between any two of these densities is at most a
+  constant factor of $\delta^2 d$, while the $L^1$-distances are at
+  least some constant factor of $\delta \sqrt{d}$.  The proofs are
+  simpler than those in the previous section; for example, in this
+  case, the partition functions can be computed exactly, and are equal
+  for every density in the subclass. We omit the details.
+\end{proof}
+
+\section{Proof of the upper bound in \thmref{unknowngraph}}
+\label{sec:unknowngraph}
+We give the proof for $\sF_{d,m}$, and the proof for $\sI_{d,m}$ is
+identical.  Let $\sG_{d, m}$ denote the set of all labeled graphs with
+vertex set $[d]$ and $m$ edges.  Now, $\sF_{d,m}$ has Yatracos class
+\[
+  \sA = \bigcup_{(G, H) \in \sG_{d, m}^2} \sA_{G, H} ,
+\]
+where
+\[
+  \sA_{G, H} = \Big\{ \{ x \in \R^d \colon g(x) > h(x)\} \colon g \in \sF_G, \, h \in \sF_H \Big\} .
+\]	
+Note that $|\sG_{d, m}| \le \binom{\binom{d}{2}}{m} \leq d^{2m}$, and
+$\VC(\sA_{G, H}) \le 2m + 2d+1$ for any $G, H \in \sG_{d, m}$, as in
+the proof of the upper bound in \thmref{normal-main-bound}. By
+properties of the VC-dimension of unions (see, \eg
+\cite[Exercise~6.11]{understanding}),
+\begin{align*}
+  \VC(\sA) &= \VC\left( \bigcup_{(G, H) \in \sG_{d, m}^2} \sA_{G, H} \right) \\
+           &\le c_1 (m+d) \log (m+d) + c_2 \log d^{4m} \\
+           &\le c_3 (m + d) \log d ,
+\end{align*}
+so by \thmref{risk-vc},
+\[ \pushQED{\qed}
+	\sR_n(\sF_{d, m}) \le c_4 \sqrt{\frac{(m + d) \log d}{n}} . \qedhere
+   \popQED
+\]
+
+\section{Discussion}\seclabel{conclusion}
+Our work raises several open problems.
+\begin{enumerate}[label=\textit{\arabic*.}]
+\item \textit{Higher order forms.} We have studied estimating
+  densities that are proportional to the exponential of some quadratic
+  form. One can ask for the minimax rate of the class of densities in
+  which this form has a higher order. Namely, let $k, d \ge 1$ be
+  given integers, and suppose that $\sF$ is a class of densities
+  supported on $\{-1, 1\}^d$, where each density $f \in \sF$ is
+  parametrized by weights $w_{i_1, \dots, i_k} \in \R$ for each
+  $1 \le i_1 < i_2 < \dots < i_k \le d$, and when $x \in \{-1, 1\}^d$,
+  \[
+    f(x) \propto \exp\left\{\sum_{1 \le i_1 < \dots < i_k \le d} w_{i_1, i_2, \dots,
+        i_k} x_{i_1} x_{i_2} \cdots x_{i_k} \right\} .
+  \]
+  Then, just as in the proof of the upper bound of
+  \thmref{ising-main-bound}~\ref{ising-2}, we have that there is a
+  universal constant $c_1 > 0$ for which
+  \[
+  	\sR_n(\sF) \le c_1 \min\left\{1, \sqrt{ \frac{\binom{d}{k}}{n} } \right\}
+  \]
+  Can this be shown to be tight to within a constant factor? It is
+  straightforward to see that the answer is \emph{yes} for $k = 1$,
+  and the results of this paper show that the answer is \emph{yes} for
+  $k = 2$. However, for $k \ge 3$, our techniques seem to
+  fail. Auffinger and Ben Arous~\cite{auffinger} noted that when the
+  weights are $w_{i_1, \dots, i_k} \iid \sN(0, 1)$, the random $k$-th
+  order form $g \colon \bS^{d - 1} \to \R$ defined by
+  \[
+  	g(x) = \sum_{i_1,  \dots, i_k = 1}^d w_{i_1, i_2, \dots, i_k} x_{i_1} x_{i_2} \dots x_{i_k} 
+  \]
+  blows up in complexity once $k \ge 3$. For example, they show that
+  there is a $c_3 > 0$ for which $g$ has at least $e^{c_3 d}$ local
+  minima on $\bS^{d - 1}$ in expectation, as long as $k \ge 3$. On the
+  other hand, when $k \le 2$, deterministically $g$ has only a
+  constant number of local minima on $\bS^{d - 1}$. This gap in
+  complexity may indicate that analyzing the case $k \ge 3$ for our
+  purposes will require some more sophisticated techniques.
+
+\item \textit{Tightness of the VC-dimension bound.}  We proved that
+  $\sR_n(\sF)$ is bounded from above and below by constant factors of
+  $\sqrt{\VC(\sA)/n}$, where $\sA$ is the Yatracos class of $\sF$, for
+  $\sF \in \{ \sF_G, \sI_G, \sI'_G\}$. The upper bound here holds for
+  any class $\sF$ by \thmref{risk-vc}, and it can be easily seen that
+  there are classes of densities for which this is not tight.  Can we
+  characterize the classes of densities $\sF$ for which $\sR_n(\sF)$
+  is in fact on the order of $\sqrt{\VC(\sA)/n}$?
+
+\item \textit{The minimax rate of unlabeled graphical models.}  In our
+  setting, the given graph $G$ is labeled, so we are given the
+  specific pairs of coordinates which interact. What if only the
+  structure of the graph $G$ is known, but its labeling is not? What
+  if we know that $G$ is a tree?  If only the number of edges of $G$
+  is known, \thmref{unknowngraph} provides some bound that is tight up
+  to a factor of $\sqrt{\log d}$. Can this gap be closed?
+
+\item \textit{The minimax rate of Ising blockmodels. } For a given
+  $S\subseteq [d]$ with $|S|=d/2$ and parameters
+  $\alpha,\beta \in \R$, an \emph{Ising blockmodel} has density
+  \[
+    f_{S,\alpha,\beta}(x) = \exp\left\{ \frac{\beta}{2d} \sum_{i \sim j} x_i x_j + \frac{\alpha}{2d} \sum_{i \not\sim j} x_i x_j \right\} \bigg / Z(\alpha,\beta) 
+  \]
+  for $x \in \{-1, 1\}^d$, where $i \sim j$ means that either
+  $i, j \in S$ or $i, j \not\in S$, and $i \not\sim j$ means that one
+  of $i, j$ is in $S$ and one is not, and $Z(\alpha,\beta)$ is the
+  normalizing factor. This model, as introduced by Berthet, Rigollet,
+  and Srivastava~\cite{berthet}, is motivated by social network
+  analysis and the notion of communities in such networks. In their
+  work~\cite{berthet}, Berthet\etal are mainly concerned with the
+  estimation or recovery of $S$ from $n$ independent samples of
+  $f_{S, \alpha, \beta}$, but one can also ask for the minimax
+  learning rate for this class of densities, if some or all of
+  $\alpha, \beta$ and $S$ are unknown.
+
+\end{enumerate}
+
+%\section*{Funding}
+%This work was supported by the National Sciences and Engineering
+%Research Council [grant number A3456 to L.D.]; a postdoctoral fellowship from the
+%Centre de Recherches Math\'{e}matiques-Institut des Sciences
+%Math\'{e}matiques and the Institute for Data Valorization/Canada First
+%Research Excellence Fund to A.M.; and a doctoral scholarship from the National
+%Sciences and Engineering Research Council to T.R.
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\begin{comment}
+\ifx\undefined\BySame
+\newcommand{\BySame}{\leavevmode\rule[.5ex]{3em}{.5pt}\ }
+\fi
+\ifx\undefined\textsc
+\newcommand{\textsc}[1]{{\sc #1}}
+\newcommand{\emph}[1]{{\em #1\/}}
+\let\tmpsmall\small
+\renewcommand{\small}{\tmpsmall\sc}
+\fi
+\begin{thebibliography}{99}
+\bibitem{acharya-lower-bound}
+\textsc{Acharya, J., Jafarpour, A., Orlitsky, A.  {\small \&} Suresh, A.~T.}
+  (2014) Near-optimal-sample estimators for spherical {G}aussian mixtures. in
+  \emph{Advances in Neural Information Processing Systems 27}, ed. by
+  Z.~Ghahramani, M.~Welling, C.~Cortes, N.~D. Lawrence,  {\small \&} K.~Q.
+  Weinberger, pp. 1395--1403. Curran Associates, Inc., Available at
+  \url{http://papers.nips.cc/paper/5251-near-optimal-sample-estimators-for-spherical-gaussian-mixtures.pdf}.
+
+\bibitem{2017-abbas}
+\textsc{Ashtiani, H., Ben-David, S., Harvey, N., Liaw, C., Mehrabian, A.
+  {\small \&} Plan, Y.}  (2018) Settling the sample complexity for learning
+  mixtures of {G}aussians. \emph{ArXiv e-prints}, Available at
+  \url{https://arxiv.org/abs/1710.05209v2}.
+
+\bibitem{abbas-mixtures}
+\textsc{Ashtiani, H., Ben-David, S.  {\small \&} Mehrabian, A.}  (2018)
+  Sample-efficient learning of mixtures. in \emph{Proceedings of the
+  Thirty-Second AAAI Conference on Artificial Intelligence}, AAAI '18, pp.
+  2679--2686. AAAI Publications., Available at
+  \url{https://arxiv.org/abs/1706.01596}.
+
+\bibitem{assouad}
+\textsc{Assouad, P.}  (1983) Deux remarques sur l'estimation. \emph{C. R. Acad.
+  Sci. Paris S\'er. I Math.}, \textbf{296}(23), 1021--1024.
+
+\bibitem{auffinger}
+\textsc{Auffinger, A.  {\small \&} Ben~Arous, G.}  (2013) Complexity of random
+  smooth functions on the high-dimensional sphere. \emph{Ann. Probab.},
+  \textbf{41}(6), 4214--4247.
+
+\bibitem{berthet}
+\textsc{Berthet, Q., Rigollet, P.  {\small \&} Srivastava, P.}  (2016) Exact
+  recovery in the {I}sing blockmodel. \emph{Ann. Statist.}, To appear,
+  available at \url{https://arxiv.org/abs/1612.03880}.
+
+\bibitem{gabor-concentration}
+\textsc{Boucheron, S., Lugosi, G.  {\small \&} Massart, P.}  (2013)
+  \emph{Concentration Inequalities: A Nonasymptotic Theory of Independence}.
+  Oxford University Press, Oxford.
+
+\bibitem{costis-2018}
+\textsc{Daskalakis, C., Dikkala, N.  {\small \&} Kamath, G.}  (2018) Testing
+  {I}sing models. in \emph{Proceedings of the Twenty-Ninth Annual ACM-SIAM
+  Symposium on Discrete Algorithms}, pp. 1989--2007.
+
+\bibitem{devroye-course}
+\textsc{Devroye, L.}  (1987) \emph{A Course in Density Estimation}, vol.~14 of
+  \emph{Progress in Probability and Statistics}. Birkh\"{a}user Boston, Inc.,
+  Boston, MA.
+
+\bibitem{devroye-gyorfi}
+\textsc{Devroye, L.  {\small \&} Gy\"orfi, L.}  (1985) \emph{Nonparametric
+  Density Estimation: The $L_1$ View}, Wiley Series in Probability and
+  Mathematical Statistics: Tracts on Probability and Statistics. John Wiley \&
+  Sons, Inc., New York.
+
+\bibitem{devroye-lugosi}
+\textsc{Devroye, L.  {\small \&} Lugosi, G.}  (2001) \emph{Combinatorial
+  Methods in Density Estimation}, Springer Series in Statistics.
+  Springer-Verlag, New York.
+
+\bibitem{Diakonikolas2016}
+\textsc{Diakonikolas, I.}  (2016) Learning structured distributions. in
+  \emph{Handbook of Big Data}, Chapman \& Hall/CRC Handb. Mod. Stat. Methods,
+  pp. 267--283. CRC Press, Boca Raton, FL.
+
+\bibitem{dudley_vectorspace}
+\textsc{Dudley, R.~M.}  (1978) Central limit theorems for empirical measures.
+  \emph{Ann. Probab.}, \textbf{6}(6), 899--929.
+
+\bibitem{gilbert}
+\textsc{Gilbert, E.~N.}  (1952) A comparison of signalling alphabets.
+  \emph{Bell System Tech. J.}, \textbf{31}(3), 504--522.
+
+\bibitem{deeplearningbook}
+\textsc{Goodfellow, I., Bengio, Y.  {\small \&} Courville, A.}  (2016)
+  \emph{Deep Learning}, Adaptive Computation and Machine Learning. MIT Press,
+  Cambridge, MA.
+
+\bibitem{Hamilton-upper}
+\textsc{Hamilton, L., Koehler, F.  {\small \&} Moitra, A.}  (2017) Information
+  theoretic properties of {M}arkov random fields, and their algorithmic
+  applications. in \emph{Advances in Neural Information Processing Systems 30},
+  ed. by I.~Guyon, U.~V. Luxburg, S.~Bengio, H.~Wallach, R.~Fergus,
+  S.~Vishwanathan,  {\small \&} R.~Garnett, pp. 2463--2472. Curran Associates,
+  Inc.
+
+\bibitem{has-fano}
+\textsc{Has'minski\u\i, R.~Z.}  (1978) A lower bound for risks of nonparametric
+  density estimates in the uniform metric. \emph{Teor. Veroyatnost. i
+  Primenen.}, \textbf{23}(4), 824--828.
+
+\bibitem{matrix_analysis}
+\textsc{Horn, R.~A.  {\small \&} Johnson, C.~R.}  (2013) \emph{Matrix
+  Analysis}. Cambridge University Press, Cambridge, second edn.
+
+\bibitem{ibragimov}
+\textsc{Ibragimov, I.}  (2001) Estimation of analytic functions. in \emph{State
+  of the Art in Probability and Statistics ({L}eiden, 1999)}, vol.~36 of
+  \emph{IMS Lecture Notes Monogr. Ser.}, pp. 359--383. Inst. Math. Statist.,
+  Beachwood, OH.
+
+\bibitem{KMV}
+\textsc{Kalai, A., Moitra, A.  {\small \&} Valiant, G.}  (2012) Disentangling
+  {G}aussians. \emph{Comm. ACM}, \textbf{55}(2).
+
+\bibitem{Kearns}
+\textsc{Kearns, M., Mansour, Y., Ron, D., Rubinfeld, R., Schapire, R.~E.
+  {\small \&} Sellie, L.}  (1994) On the learnability of discrete
+  distributions. in \emph{Proceedings of the Twenty-sixth Annual ACM Symposium
+  on Theory of Computing}, STOC '94, pp. 273--282, New York, NY, USA. ACM.
+
+\bibitem{Klivans-upper}
+\textsc{Klivans, A.~R.  {\small \&} Meka, R.}  (2017) Learning graphical models
+  using multiplicative weights. in \emph{58th {A}nnual {IEEE} {S}ymposium on
+  {F}oundations of {C}omputer {S}cience---{FOCS} 2017}, pp. 343--354. IEEE
+  Computer Soc., Los Alamitos, CA.
+
+\bibitem{kullback-book}
+\textsc{Kullback, S.}  (1997) \emph{Information Theory and Statistics}. Dover
+  Publications, Inc., Mineola, NY., Reprint of the second (1968) edition.
+
+\bibitem{graphical-models}
+\textsc{Lauritzen, S.~L.}  (1996) \emph{Graphical Models}, vol.~17 of
+  \emph{Oxford Statistical Science Series}. The Clarendon Press, Oxford
+  University Press, New York.
+
+\bibitem{lecam-1}
+\textsc{Le~Cam, L.}  (1973) Convergence of estimates under dimensionality
+  restrictions. \emph{Ann. Statist.}, \textbf{1}, 38--53.
+
+\bibitem{lecam-2}
+\textsc{\BySame{}}  (1986) \emph{Asymptotic Methods in Statistical Decision
+  Theory}, Springer Series in Statistics. Springer-Verlag, New York.
+
+\bibitem{Santhanam-lower}
+\textsc{Santhanam, N.~P.  {\small \&} Wainwright, M.~J.}  (2012)
+  Information-theoretic limits of selecting binary graphical models in high
+  dimensions. \emph{IEEE Trans. Inform. Theory}, \textbf{58}(7), 4117--4134.
+
+\bibitem{understanding}
+\textsc{Shalev-Shwartz, S.  {\small \&} Ben-David, S.}  (2014)
+  \emph{Understanding Machine Learning: From Theory to Algorithms}. Cambridge
+  University Press.
+
+\bibitem{Shanmugam-lower}
+\textsc{Shanmugam, K., Tandon, R., Dimakis, A.~G.  {\small \&} Ravikumar, P.}
+  (2014) On the information theoretic limits of learning {I}sing models. in
+  \emph{Proceedings of the 27th International Conference on Neural Information
+  Processing Systems}, vol.~2 of \emph{NIPS'14}, pp. 2303--2311, Cambridge, MA,
+  USA. MIT Press.
+
+\bibitem{talagrand-2003}
+\textsc{Talagrand, M.}  (2003) \emph{Spin Glasses: A Challenge for
+  Mathematicians. Cavity and Mean Field Models}, vol.~46 of \emph{Ergebnisse
+  der Mathematik und ihrer Grenzgebiete. 3. Folge. A Series of Modern Surveys
+  in Mathematics}. Springer-Verlag, Berlin.
+
+\bibitem{talagrand-2010}
+\textsc{\BySame{}}  (2011a) \emph{Mean Field Models for Spin Glasses. {V}olume
+  {I}. Basic Examples}, vol.~54 of \emph{Ergebnisse der Mathematik und ihrer
+  Grenzgebiete. 3. Folge. A Series of Modern Surveys in Mathematics}.
+Springer-Verlag, Berlin.
+
+\bibitem{talagrand-2011}
+\textsc{\BySame{}}  (2011b) \emph{Mean Field Models for Spin Glasses. {V}olume
+  {II}. Advanced Replica-Symmetry and Low Temperature}, vol.~55 of
+  \emph{Ergebnisse der Mathematik und ihrer Grenzgebiete. 3. Folge. A Series of
+  Modern Surveys in Mathematics}. Springer, Heidelberg.
+
+\bibitem{tsybakov}
+\textsc{Tsybakov, A.~B.}  (2009) \emph{Introduction to Nonparametric
+  Estimation}, Springer Series in Statistics. Springer, New York, Revised and
+  extended from the 2004 French original, Translated by Vladimir Zaiats.
+
+\bibitem{vapnik-cherv}
+\textsc{Vapnik, V.~N.  {\small \&} \v{C}ervonenkis, A.~J.}  (1971) The uniform
+  convergence of frequencies of the appearance of events to their
+  probabilities. \emph{Teor. Verojatnost. i Primenen.}, \textbf{16}, 264--279.
+
+\bibitem{varshamov}
+\textsc{Var\v{s}amov, R.~R.}  (1957) The evaluation of signals in codes with
+  correction of errors. \emph{Dokl. Akad. Nauk}, \textbf{117}(5), 739--741.
+
+\bibitem{vershynin-book}
+\textsc{Vershynin, R.}  (2018) \emph{High-Dimensional Probability}. Cambridge
+  University Press, To appear, available at
+  \url{https://www.math.uci.edu/~rvershyn/papers/HDP-book/HDP-book.pdf}.
+
+\bibitem{yu-survey}
+\textsc{Yu, B.}  (1997) {A}ssouad, {F}ano, and {L}e {C}am. in \emph{Festschrift
+  for {L}ucien {L}e {C}am}, pp. 423--435. Springer, New York.
+\end{thebibliography}
+\end{comment}
+
+\end{document}
